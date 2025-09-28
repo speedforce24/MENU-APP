@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import api from "../api"; // ✅ replaced axios with api instance
+import api from "../axios"; // ✅ replaced axios with api instance
 import Rating from "react-rating";
 import "@fortawesome/fontawesome-free/css/all.css";
 import { toast } from "react-toastify";
