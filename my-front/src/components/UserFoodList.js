@@ -8,7 +8,7 @@ const UserFoodList = ({ selectedRestaurant }) => {
     if (!selectedRestaurant) return;
 
     axios
-      .get(`http://localhost:5000/api/foods/${selectedRestaurant}`)
+      .get(`/foods/${selectedRestaurant}`)
       .then((res) => {
         setFoods(res.data);
       })
