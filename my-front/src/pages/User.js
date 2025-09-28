@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import api from "../api"; // ✅ replaced axios with api instance
 import Rating from "react-rating";
 import "@fortawesome/fontawesome-free/css/all.css";
-import {toast} from "react-toastify";
+import { toast } from "react-toastify";
 
 const UserDashboard = () => {
   const [restaurants, setRestaurants] = useState([]);
@@ -14,13 +14,12 @@ const UserDashboard = () => {
   const user = storedUser ? JSON.parse(storedUser) : null;
   const [comments, setComments] = useState({});
 
-
   const hasFetchedRatings = useRef(false);
 
   // ✅ Fetch restaurants
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/restaurants", {
+    api
+      .get("/restaurants", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -33,8 +32,8 @@ const UserDashboard = () => {
   useEffect(() => {
     if (!selectedRestaurant) return;
 
-    axios
-      .get(`http://localhost:5000/api/foods/${selectedRestaurant}`, {
+    api
+      .get(`/foods/${selectedRestaurant}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -55,9 +54,7 @@ const UserDashboard = () => {
       await Promise.all(
         foods.map(async (food) => {
           try {
-            const res = await axios.get(
-              `http://localhost:5000/api/ratings/${food._id}/user/${user._id}`
-            );
+            const res = await api.get(`/ratings/${food._id}/user/${user._id}`);
             map[food._id] = res.data.value || 0;
           } catch (err) {
             console.error("Could not fetch rating for food:", food._id);
@@ -124,13 +121,10 @@ const UserDashboard = () => {
                   initialRating={ratings[food._id] || 0}
                   onChange={async (newValue) => {
                     try {
-                      await axios.post(
-                        `http://localhost:5000/api/ratings/${food._id}`,
-                        {
-                          userId: user._id,
-                          value: newValue,
-                        }
-                      );
+                      await api.post(`/ratings/${food._id}`, {
+                        userId: user._id,
+                        value: newValue,
+                      });
                       setRatings((prev) => ({
                         ...prev,
                         [food._id]: newValue,
@@ -148,32 +142,34 @@ const UserDashboard = () => {
                   }
                 />
                 <textarea
-  placeholder="Leave a comment (anonymous)"
-  className="mt-2 w-full p-1 border rounded text-sm"
-  value={comments[food._id] || ""}
-  onChange={(e) =>
-    setComments((prev) => ({ ...prev, [food._id]: e.target.value }))
-  }
-/>
-<button
-  onClick={async () => {
-    const comment = comments[food._id];
-    if (!comment) return;
+                  placeholder="Leave a comment (anonymous)"
+                  className="mt-2 w-full p-1 border rounded text-sm"
+                  value={comments[food._id] || ""}
+                  onChange={(e) =>
+                    setComments((prev) => ({
+                      ...prev,
+                      [food._id]: e.target.value,
+                    }))
+                  }
+                />
+                <button
+                  onClick={async () => {
+                    const comment = comments[food._id];
+                    if (!comment) return;
 
-    try {
-      await axios.post(`http://localhost:5000/api/comments/${food._id}`, { comment });
-      toast.success("Comment submitted anonymously ✅");
-      setComments((prev) => ({ ...prev, [food._id]: "" }));
-    } catch (err) {
-      console.error("Comment submission failed:", err);
-      toast.error("Comment failed ❌");
-    }
-  }}
-  className="text-xs bg-blue-500 text-white px-3 py-1 rounded mt-1"
->
-  Submit Comment
-</button>
-
+                    try {
+                      await api.post(`/comments/${food._id}`, { comment });
+                      toast.success("Comment submitted anonymously ✅");
+                      setComments((prev) => ({ ...prev, [food._id]: "" }));
+                    } catch (err) {
+                      console.error("Comment submission failed:", err);
+                      toast.error("Comment failed ❌");
+                    }
+                  }}
+                  className="text-xs bg-blue-500 text-white px-3 py-1 rounded mt-1"
+                >
+                  Submit Comment
+                </button>
               </div>
             ))}
           </div>
