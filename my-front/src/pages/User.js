@@ -108,7 +108,7 @@ const UserDashboard = () => {
                 }`}
               >
                 <img
-                  src={food.image}
+                  src={`https://menu-app-ythl.onrender.com${food.image}`}
                   alt={food.foodName}
                   className="w-24 h-24 object-cover rounded-md"
                 />
