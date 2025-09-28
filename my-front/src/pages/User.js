@@ -108,7 +108,7 @@ const UserDashboard = () => {
                 }`}
               >
                 <img
-                  src={`http://localhost:5000${food.image}`}
+                  src={`${food.image}`}
                   alt={food.foodName}
                   className="w-24 h-24 object-cover rounded-md"
                 />
