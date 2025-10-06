@@ -22,7 +22,7 @@ useEffect(() => {
     await Promise.all(
       foods.map(async (food) => {
         try {
-          const res = await axios.get(`/ratings/${food._id}/average`);
+          const res = await axios.get(`/api/ratings/${food._id}/average`);
           map[food._id] = res.data.average?.toFixed(1) || "0.0";
         } catch (err) {
           console.error("Admin avg fetch failed", err);
@@ -65,13 +65,13 @@ useEffect(() => {
     if (!selectedRestaurant) return;
     const token = localStorage.getItem("token");
     axios
-      .get(`/foods/${selectedRestaurant}`, {
+      .get(`/api/foods/${selectedRestaurant}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
       .then(async (res) => {
   const foodWithComments = await Promise.all(
     res.data.map(async (food) => {
-      const commentsRes = await axios.get(`/comments/${food._id}`);
+      const commentsRes = await axios.get(`/api/comments/${food._id}`);
       return { ...food, comments: commentsRes.data };
     })
   );
@@ -110,7 +110,7 @@ useEffect(() => {
 
     if (!restaurantExists) {
       const res = await axios.post(
-        "/restaurants",
+        "/api/restaurants",
         { restaurantName: selectedRestaurant, createdBy: user._id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -127,7 +127,7 @@ useEffect(() => {
     formData.append("price", price);
     formData.append("image", image);
 
-    const res = await axios.post("/foods", formData, {
+    const res = await axios.post("/api/foods", formData, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "multipart/form-data",
@@ -151,7 +151,7 @@ useEffect(() => {
     const token = localStorage.getItem("token");
     try {
       const res = await axios.patch(
-        `/foods/${foodId}/toggle`,
+        `/api/foods/${foodId}/toggle`,
         { active: !currentStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -170,7 +170,7 @@ useEffect(() => {
   const token = localStorage.getItem("token");
 
   try {
-    await axios.delete(`/foods/${foodId}`, {
+    await axios.delete(`/api/foods/${foodId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
