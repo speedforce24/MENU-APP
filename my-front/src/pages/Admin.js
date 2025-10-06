@@ -48,6 +48,9 @@ useEffect(() => {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
       .then((res) => {
+       
+    console.log("🚀 restaurant response:", res.data);
+   
         setRestaurants(res.data);
         if (res.data.length > 0) {
           setSelectedRestaurant(res.data[0].restaurantName);
