@@ -44,7 +44,7 @@ useEffect(() => {
 
     const token = localStorage.getItem("token");
     axios
-      .get(`/restaurants/user/${parsedUser._id}`, {
+      .get(`/user/${parsedUser._id}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
       .then((res) => {
