@@ -37,32 +37,51 @@ const Admin = () => {
   // ✅ Fetch restaurants once
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
 
-      const token = localStorage.getItem("token");
-      api
-        .get(`/restaurants/user/${parsedUser._id}`, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        })
-        .then((res) => {
-          if (Array.isArray(res.data) && res.data.length > 0) {
-            console.log("🚀 restaurant response:", res.data);
-            setRestaurants(res.data);
+if (storedUser) {
+  const parsedUser = JSON.parse(storedUser);
+  setUser(parsedUser);
 
-            // ✅ Only set selectedRestaurant if not already chosen
-            setSelectedRestaurant((prev) =>
-              prev || res.data[0].restaurantName
-            );
-          } else {
-            console.warn("⚠️ No restaurants found, keeping current state.");
-          }
-        })
-        .catch((err) =>
-          console.error("Error fetching user-specific restaurants:", err)
-        );
+  const token = localStorage.getItem("token");
+
+  // ✅ Fetch restaurants safely — only when both user & token exist
+  const fetchRestaurants = async () => {
+    if (!parsedUser?._id || !token) {
+      console.warn("User ID or token missing, skipping fetch");
+      return;
     }
+
+    try {
+      const res = await axios.get(`/api/restaurants/user/${parsedUser._id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      console.log("🚀 restaurant response:", res.data);
+
+      if (Array.isArray(res.data) && res.data.length > 0) {
+        setRestaurants(res.data);
+        setSelectedRestaurant(res.data[0].restaurantName);
+      } else {
+        console.warn("⚠️ No restaurants found for user:", parsedUser._id);
+        setRestaurants([]); // Keeps empty but prevents flicker
+      }
+    } catch (err) {
+      console.error("❌ Error fetching restaurants:", err);
+    }
+  };
+
+  // ✅ Wait one tick before fetching (prevents premature request on reload)
+  setTimeout(fetchRestaurants, 200);
+
+  // ✅ Re-fetch only when user-side triggers localStorage update
+  window.addEventListener("storage", (e) => {
+    if (e.key === "user_updated" && e.newValue === "true") {
+      fetchRestaurants();
+      localStorage.setItem("user_updated", "false");
+    }
+  });
+}
+
   }, []);
 
   // ✅ Fetch foods safely
