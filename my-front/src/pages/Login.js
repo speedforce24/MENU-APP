@@ -36,6 +36,8 @@ const Login = () => {
               navigate("/user");
             }, 5000);
         // after login success
+         localStorage.setItem("user", JSON.stringify(response.data.user));
+
         toast.success("Login successful");
       } else {
         console.error("❌ No token received");
