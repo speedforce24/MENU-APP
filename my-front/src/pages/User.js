@@ -132,7 +132,9 @@ const UserDashboard = () => {
                       toast.success("Rating successful");
                     } catch (err) {
                       console.error("Rating failed:", err);
+                      
                     }
+                    localStorage.setItem("user_updated", "true");
                   }}
                   emptySymbol={
                     <i className="far fa-star text-yellow-400 text-xl" />
@@ -164,7 +166,9 @@ const UserDashboard = () => {
                     } catch (err) {
                       console.error("Comment submission failed:", err);
                       toast.error("Comment failed ❌");
+                      
                     }
+                    localStorage.setItem("user_updated", "true");
                   }}
                   className="text-xs bg-blue-500 text-white px-3 py-1 rounded mt-1"
                 >
