@@ -52,7 +52,7 @@ if (storedUser) {
     }
 
     try {
-      const res = await axios.get(`/api/restaurants/user/${parsedUser._id}`, {
+      const res = await api.get(`/restaurants/user/${parsedUser._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
