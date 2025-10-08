@@ -252,7 +252,7 @@ useEffect(() => {
           </button>
         
 
-        <div className="mt-10 max-w-lg w-full h-full max-h-lg bg-gray-100 rounded-lg p-4 shadow-inner">
+        <div className=" max-w-lg w-full h-full max-h-lg bg-gray-100 rounded-lg p-4 shadow-inner">
           <h3 className="text-xl font-semibold mb-4">Uploaded Foods</h3>
           {foods.length === 0 ? (
             <p>No foods uploaded yet.</p>
