@@ -187,7 +187,7 @@ useEffect(() => {
   <div className="h-screen w-full flex flex-col lg:flex-row items-center justify-center bg-gray-100">
     {/* Form Section - LEFT */}
     <div className="w-full lg:w-1/2 h-full max-h-lg overflow-y-auto flex items-center justify-center">
-      <div className="p-6 max-w-lg w-full mt-4  bg-white bg-opacity-80 rounded-lg shadow-lg">
+      <div className="p-6 max-w-lg w-full mt-6  bg-white bg-opacity-80 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold text-center mb-4">Admin Panel</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
