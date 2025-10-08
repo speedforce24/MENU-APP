@@ -250,7 +250,7 @@ useEffect(() => {
           >
             Add Food
           </button>
-        </form>
+        
 
         <div className="mt-10 max-w-lg w-full bg-gray-100 rounded-lg p-4 shadow-inner">
           <h3 className="text-xl font-semibold mb-4">Uploaded Foods</h3>
@@ -303,6 +303,7 @@ useEffect(() => {
             </ul>
           )}
         </div>
+        </form>
       </div>
     </div>
 
