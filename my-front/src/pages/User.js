@@ -13,6 +13,14 @@ const UserDashboard = () => {
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
   const [comments, setComments] = useState({});
+  const imageBasePath = api.defaults.baseURL || "/api";
+
+  const getImageSrc = (imagePath) => {
+    if (!imagePath) return "";
+    if (/^https?:\/\//i.test(imagePath)) return imagePath;
+    const normalizedPath = imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
+    return `${imageBasePath}${normalizedPath}`;
+  };
 
   const hasFetchedRatings = useRef(false);
 
@@ -111,7 +119,7 @@ const UserDashboard = () => {
                   }`}
                 >
                   <img
-                    src={`https://menu-app-ythl.onrender.com${food.image}`}
+                    src={getImageSrc(food.image)}
                     alt={food.foodName}
                     className="w-full h-36 sm:h-40 object-cover rounded-xl"
                   />

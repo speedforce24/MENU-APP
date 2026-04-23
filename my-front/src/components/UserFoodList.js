@@ -1,8 +1,17 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import api from "../axios";
 
 const UserFoodList = ({ selectedRestaurant }) => {
   const [foods, setFoods] = useState([]);
+  const imageBasePath = api.defaults.baseURL || "/api";
+
+  const getImageSrc = (imagePath) => {
+    if (!imagePath) return "";
+    if (/^https?:\/\//i.test(imagePath)) return imagePath;
+    const normalizedPath = imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
+    return `${imageBasePath}${normalizedPath}`;
+  };
 
   useEffect(() => {
     if (!selectedRestaurant) return;
@@ -31,7 +40,7 @@ const UserFoodList = ({ selectedRestaurant }) => {
             }
           >
             <img
-              src={food.image}
+              src={getImageSrc(food.image)}
               alt={food.foodName}
               className="w-24 h-24 rounded-full"
             />
