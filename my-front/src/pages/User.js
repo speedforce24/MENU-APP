@@ -70,115 +70,118 @@ const UserDashboard = () => {
 
   return (
     <div
-      className="min-h-screen w-screen flex flex-col items-center justify-center bg-cover bg-center bg-no-repeat"
+      className="min-h-screen w-full bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 py-6 sm:py-8 px-4 md:px-6"
       style={{
         backgroundImage: `url(${process.env.PUBLIC_URL + "/beautiful.jpg"})`,
       }}
     >
-      {/* Restaurant Selector */}
-      <div className="flex items-center gap-4 mb-6 bg-white bg-opacity-80 p-4 rounded-lg shadow-lg">
-        <h1 className="text-xl font-bold">Select a Restaurant</h1>
-        <select
-          className="p-2 border rounded"
-          value={selectedRestaurant}
-          onChange={(e) => setSelectedRestaurant(e.target.value)}
-        >
-          <option value="">Choose a restaurant</option>
-          {restaurants.map((restaurant) => (
-            <option key={restaurant._id} value={restaurant.restaurantName}>
-              {restaurant.restaurantName}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Display Food Items */}
-      {selectedRestaurant && (
-        <div className="w-full max-w-5xl bg-white bg-opacity-90 p-6 rounded-lg shadow-lg">
-          <h2 className="text-lg font-bold text-center mb-6">
-            {selectedRestaurant} Menu
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center">
-            {foods.map((food) => (
-              <div
-                key={food._id}
-                className={`border w-36 h-42 rounded-lg flex flex-col items-center shadow-md p-3 bg-white ${
-                  food.active ? "" : "opacity-50 grayscale pointer-events-none"
-                }`}
-              >
-                <img
-                  src={`https://menu-app-ythl.onrender.com${food.image}`}
-                  alt={food.foodName}
-                  className="w-24 h-24 object-cover rounded-md"
-                />
-                <h3 className="text-lg font-bold text-center mt-2">
-                  {food.foodName}
-                </h3>
-                <p className="text-gray-600 text-center">₦{food.price}</p>
-
-                <Rating
-                  initialRating={ratings[food._id] || 0}
-                  onChange={async (newValue) => {
-                    try {
-                      await api.post(`/ratings/${food._id}`, {
-                        userId: user._id,
-                        value: newValue,
-                      });
-                      setRatings((prev) => ({
-                        ...prev,
-                        [food._id]: newValue,
-                      }));
-                      toast.success("Rating successful");
-                    } catch (err) {
-                      console.error("Rating failed:", err);
-                      
-                    }
-                    localStorage.setItem("user_updated", "true");
-                  }}
-                  emptySymbol={
-                    <i className="far fa-star text-yellow-400 text-xl" />
-                  }
-                  fullSymbol={
-                    <i className="fas fa-star text-yellow-500 text-xl" />
-                  }
-                />
-                <textarea
-                  placeholder="Leave a comment (anonymous)"
-                  className="mt-2 w-full p-1 border rounded text-sm"
-                  value={comments[food._id] || ""}
-                  onChange={(e) =>
-                    setComments((prev) => ({
-                      ...prev,
-                      [food._id]: e.target.value,
-                    }))
-                  }
-                />
-                <button
-                  onClick={async () => {
-                    const comment = comments[food._id];
-                    if (!comment) return;
-
-                    try {
-                      await api.post(`/comments/${food._id}`, { comment });
-                      toast.success("Comment submitted anonymously ✅");
-                      setComments((prev) => ({ ...prev, [food._id]: "" }));
-                    } catch (err) {
-                      console.error("Comment submission failed:", err);
-                      toast.error("Comment failed ❌");
-                      
-                    }
-                    localStorage.setItem("user_updated", "true");
-                  }}
-                  className="text-xs bg-blue-500 text-white px-3 py-1 rounded mt-1"
-                >
-                  Submit Comment
-                </button>
-              </div>
-            ))}
+      <div className="mx-auto w-full max-w-6xl">
+        {/* Restaurant Selector */}
+        <div className="mb-5 sm:mb-6 rounded-3xl border border-white/10 bg-white/10 backdrop-blur-md p-4 md:p-5 shadow-xl transition-all duration-300 hover:shadow-emerald-500/20">
+          <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
+            <h1 className="text-lg sm:text-xl font-bold text-white">Select a Restaurant</h1>
+            <select
+              className="w-full md:max-w-sm rounded-xl border border-white/20 bg-white/90 px-4 py-3.5 text-base text-slate-900 transition-all duration-200 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-300/60"
+              value={selectedRestaurant}
+              onChange={(e) => setSelectedRestaurant(e.target.value)}
+            >
+              <option value="">Choose a restaurant</option>
+              {restaurants.map((restaurant) => (
+                <option key={restaurant._id} value={restaurant.restaurantName}>
+                  {restaurant.restaurantName}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
-      )}
+
+        {/* Display Food Items */}
+        {selectedRestaurant && (
+          <div className="rounded-3xl border border-white/10 bg-white/10 backdrop-blur-md p-4 sm:p-5 md:p-6 shadow-xl transition-all duration-300 hover:shadow-emerald-500/15">
+            <h2 className="text-xl sm:text-2xl font-bold text-white text-center mb-5 sm:mb-6">
+              {selectedRestaurant} Menu
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+              {foods.map((food) => (
+                <div
+                  key={food._id}
+                  className={`rounded-2xl border p-3.5 sm:p-4 shadow-md bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
+                    food.active ? "border-slate-200" : "opacity-50 grayscale pointer-events-none border-slate-300"
+                  }`}
+                >
+                  <img
+                    src={`https://menu-app-ythl.onrender.com${food.image}`}
+                    alt={food.foodName}
+                    className="w-full h-36 sm:h-40 object-cover rounded-xl"
+                  />
+                  <h3 className="text-base sm:text-lg font-bold mt-3">{food.foodName}</h3>
+                  <p className="text-sm sm:text-base text-gray-600">₦{food.price}</p>
+
+                  <div className="mt-2">
+                    <Rating
+                      initialRating={ratings[food._id] || 0}
+                      onChange={async (newValue) => {
+                        try {
+                          await api.post(`/ratings/${food._id}`, {
+                            userId: user._id,
+                            value: newValue,
+                          });
+                          setRatings((prev) => ({
+                            ...prev,
+                            [food._id]: newValue,
+                          }));
+                          toast.success("Rating successful");
+                        } catch (err) {
+                          console.error("Rating failed:", err);
+                        }
+                        localStorage.setItem("user_updated", "true");
+                      }}
+                      emptySymbol={
+                        <i className="far fa-star text-yellow-400 text-xl" />
+                      }
+                      fullSymbol={
+                        <i className="fas fa-star text-yellow-500 text-xl" />
+                      }
+                    />
+                  </div>
+
+                  <textarea
+                    placeholder="Leave a comment (anonymous)"
+                    className="mt-3 w-full rounded-xl border border-slate-300 p-2.5 text-sm transition-all duration-200 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-300/60"
+                    value={comments[food._id] || ""}
+                    onChange={(e) =>
+                      setComments((prev) => ({
+                        ...prev,
+                        [food._id]: e.target.value,
+                      }))
+                    }
+                  />
+                  <button
+                    onClick={async () => {
+                      const comment = comments[food._id];
+                      if (!comment) return;
+
+                      try {
+                        await api.post(`/comments/${food._id}`, { comment });
+                        toast.success("Comment submitted anonymously ✅");
+                        setComments((prev) => ({ ...prev, [food._id]: "" }));
+                      } catch (err) {
+                        console.error("Comment submission failed:", err);
+                        toast.error("Comment failed ❌");
+                      }
+                      localStorage.setItem("user_updated", "true");
+                    }}
+                    className="mt-2 w-full rounded-xl bg-emerald-500 px-3 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-emerald-600 hover:shadow-lg hover:shadow-emerald-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                  >
+                    Submit Comment
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

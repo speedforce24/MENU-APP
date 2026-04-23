@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false); // ➡️ for toggling form
   const [forgotEmail, setForgotEmail] = useState(""); // ➡️ for forgot password email input
   const navigate = useNavigate();
@@ -69,65 +70,91 @@ const Login = () => {
 
   return (
     <div
-      className="relative h-screen m-0 p-0 object-contain overflow-hidden w-full bg-cover bg-center bg-no-repeat"
+      className="min-h-screen w-full bg-gradient-to-br from-slate-950 via-slate-900 to-amber-900 px-4 py-6 sm:py-8 flex items-center justify-center"
       style={{ backgroundImage: `url(${process.env.PUBLIC_URL + "/platter.jpg"})` }}
     >
-      <h2 className="flex justify-center mb-3 mt-5 font-extrabold p-10 text-[70px] text-white">Login</h2>
-
-      <div className="flex flex-col items-center">
+      <div className="w-full max-w-md rounded-3xl border border-white/15 bg-slate-950/70 backdrop-blur-xl shadow-2xl p-5 sm:p-6 md:p-8 transition-all duration-300 hover:shadow-amber-500/20">
+        <h2 className="text-center text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-2">
+          Welcome back
+        </h2>
+        <p className="text-center text-sm sm:text-base text-slate-200 mb-5 sm:mb-6">
+          Login to continue your food experience.
+        </p>
         {!showForgotPassword ? (
-          <form onSubmit={handleLogin} className="flex flex-col items-center">
+          <form onSubmit={handleLogin} className="space-y-4">
             <input
               type="email"
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="border px-4 text-base h-[60px] w-[400px] focus:outline-none focus:ring-0 focus:border-yellow-500 rounded-3xl mb-4"
+              className="w-full rounded-xl border border-white/15 bg-white/95 px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-500 transition-all duration-200 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300/60"
               required
             />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="border text-base px-4 h-[60px] w-[400px] focus:outline-none focus:ring-0 focus:border-yellow-500 rounded-3xl mb-4"
-              required
-            />
-            <button type="submit" className="mt-3 bg-yellow-300 border rounded-3xl w-[100px] font-bold">
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full rounded-xl border border-white/15 bg-white/95 px-4 py-3.5 pr-20 text-base text-slate-900 placeholder:text-slate-500 transition-all duration-200 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300/60"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute inset-y-0 right-3 flex items-center text-xs sm:text-sm font-semibold text-slate-600 transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/80 rounded"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full rounded-xl bg-amber-400 py-3.5 font-semibold text-slate-900 transition-all duration-300 hover:-translate-y-0.5 hover:bg-amber-300 hover:shadow-lg hover:shadow-amber-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+            >
               Login
             </button>
 
             {/* ➡️ Forgot Password link */}
-            <p
+            <button
+              type="button"
               onClick={() => setShowForgotPassword(true)}
-              className="mt-2 text-yellow-300 cursor-pointer font-semibold"
+              className="w-full text-center text-amber-200 font-semibold transition-colors hover:text-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/80 rounded"
             >
               Forgot Password?
-            </p>
+            </button>
           </form>
         ) : (
-          <form onSubmit={handleForgotPassword} className="flex flex-col items-center">
+          <form onSubmit={handleForgotPassword} className="space-y-4">
             <input
               type="email"
               placeholder="Enter your email"
               value={forgotEmail}
               onChange={(e) => setForgotEmail(e.target.value)}
-              className="border px-4 text-base h-[60px] w-[400px] focus:outline-none focus:ring-0 focus:border-yellow-500 rounded-3xl mb-4"
+              className="w-full rounded-xl border border-white/15 bg-white/95 px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-500 transition-all duration-200 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300/60"
               required
             />
-            <button type="submit" className="bg-yellow-300 border rounded-3xl w-[150px] font-bold">
+            <button
+              type="submit"
+              className="w-full rounded-xl bg-amber-400 py-3.5 font-semibold text-slate-900 transition-all duration-300 hover:-translate-y-0.5 hover:bg-amber-300 hover:shadow-lg hover:shadow-amber-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+            >
               Send Reset Link
             </button>
-            <p
+            <button
+              type="button"
               onClick={() => setShowForgotPassword(false)}
-              className="mt-2 text-yellow-300 cursor-pointer font-semibold"
+              className="w-full text-center text-amber-200 font-semibold transition-colors hover:text-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/80 rounded"
             >
               Back to Login
-            </p>
+            </button>
           </form>
         )}
 
-        <Link to="/register" className="font-semibold mt-2">
+        <Link
+          to="/register"
+          className="block text-center font-semibold mt-5 text-white transition-colors hover:text-amber-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/80 rounded"
+        >
           Don't have an account? Register
         </Link>
       </div>

@@ -184,138 +184,136 @@ useEffect(() => {
 
 
   return (
-  <div className="h-screen w-full flex flex-col lg:flex-row items-center justify-center bg-gray-100">
-    {/* Form Section - LEFT */}
-    <div className="w-full lg:w-1/2 h-full max-h-lg overflow-y-auto flex items-center justify-center">
-      <div className="p-6 max-w-lg w-full mt-10 bg-white bg-opacity-80 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold text-center mb-4 mt-4">Admin Panel</h2>
+    <div className="min-h-screen w-full bg-gradient-to-br from-slate-950 via-slate-900 to-amber-950 py-6 sm:py-8 px-4 md:px-6">
+      <div className="mx-auto max-w-7xl grid grid-cols-1 xl:grid-cols-5 gap-4 sm:gap-6">
+        <div className="xl:col-span-2 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md p-4 sm:p-5 md:p-6 shadow-xl transition-all duration-300 hover:shadow-amber-500/20">
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white mb-1">Admin Panel</h2>
+          <p className="text-sm text-slate-200 mb-5">Manage restaurants, food items, and availability.</p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            placeholder="Enter or select restaurant name"
-            list="restaurant-options"
-            value={selectedRestaurant}
-            onChange={(e) => setSelectedRestaurant(e.target.value)}
-            className="border p-2 w-full rounded-3xl"
-            required
-          />
-          <datalist id="restaurant-options">
-            {restaurants.map((r) => (
-              <option key={r._id} value={r.restaurantName} />
-            ))}
-          </datalist>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              type="text"
+              placeholder="Enter or select restaurant name"
+              list="restaurant-options"
+              value={selectedRestaurant}
+              onChange={(e) => setSelectedRestaurant(e.target.value)}
+              className="w-full rounded-xl border border-white/20 bg-white/90 px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-500 transition-all duration-200 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300/60"
+              required
+            />
+            <datalist id="restaurant-options">
+              {restaurants.map((r) => (
+                <option key={r._id} value={r.restaurantName} />
+              ))}
+            </datalist>
 
-          <input
-            type="text"
-            placeholder="Food Name"
-            value={foodName}
-            onChange={(e) => setFoodName(e.target.value)}
-            className="border p-2 w-full rounded-3xl"
-            required
-          />
-          <input
-            type="text"
-            placeholder="Price"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            className="border p-2 w-full rounded-3xl"
-            required
-          />
+            <input
+              type="text"
+              placeholder="Food Name"
+              value={foodName}
+              onChange={(e) => setFoodName(e.target.value)}
+              className="w-full rounded-xl border border-white/20 bg-white/90 px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-500 transition-all duration-200 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300/60"
+              required
+            />
+            <input
+              type="text"
+              placeholder="Price"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              className="w-full rounded-xl border border-white/20 bg-white/90 px-4 py-3.5 text-base text-slate-900 placeholder:text-slate-500 transition-all duration-200 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300/60"
+              required
+            />
 
-          <input
-            type="file"
-            id="file-upload"
-            onChange={handleImageChange}
-            className="hidden"
-            required
-          />
-          <div className="flex items-center gap-3 mt-5">
-            <label
-              htmlFor="file-upload"
-              className="bg-yellow-500 text-white px-4 py-2 rounded-3xl text-center cursor-pointer inline-block"
+            <input
+              type="file"
+              id="file-upload"
+              onChange={handleImageChange}
+              className="hidden"
+              required
+            />
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <label
+                htmlFor="file-upload"
+                className="inline-flex w-full sm:w-auto justify-center rounded-xl bg-amber-400 px-4 py-3 text-sm font-semibold text-slate-900 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:bg-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+              >
+                Upload Food Image
+              </label>
+              {fileName && (
+                <span className="text-xs sm:text-sm text-amber-50 truncate sm:max-w-[180px]">
+                  {fileName}
+                </span>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              className="w-full rounded-xl bg-amber-400 py-3.5 font-semibold text-slate-900 transition-all duration-300 hover:-translate-y-0.5 hover:bg-amber-300 hover:shadow-lg hover:shadow-amber-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
             >
-              Upload Food Image
-            </label>
-            {fileName && (
-              <span className="text-sm text-gray-700 truncate max-w-[150px]">
-                {fileName}
-              </span>
-            )}
-          </div>
+              Add Food
+            </button>
+          </form>
+        </div>
 
-          <button
-            type="submit"
-            className="bg-yellow-500 text-white px-4 py-2 w-full rounded-3xl"
-          >
-            Add Food
-          </button>
-        
-
-        <div className=" max-w-lg w-full h-full max-h-lg bg-gray-100 rounded-lg p-4 shadow-inner">
-          <h3 className="text-xl font-semibold mb-4">Uploaded Foods</h3>
+        <div className="xl:col-span-3 rounded-3xl border border-white/10 bg-white/10 backdrop-blur-md p-4 sm:p-5 md:p-6 shadow-xl transition-all duration-300 hover:shadow-amber-500/15">
+          <h3 className="text-lg sm:text-xl font-semibold text-white mb-4">Uploaded Foods</h3>
           {foods.length === 0 ? (
-            <p>No foods uploaded yet.</p>
+            <p className="text-slate-200">No foods uploaded yet.</p>
           ) : (
-            <ul>
+            <ul className="space-y-3 max-h-[70vh] overflow-y-auto pr-1">
               {foods.map((food) => (
                 <li
                   key={food._id}
-                  className={`flex items-center justify-between p-2 mb-2 rounded ${
+                  className={`rounded-xl p-3 sm:p-4 border transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md ${
                     food.active === false
-                      ? "bg-gray-300 text-gray-500"
-                      : "bg-white"
+                      ? "bg-slate-300/50 border-slate-300 text-slate-700"
+                      : "bg-white border-slate-200 text-slate-900"
                   }`}
                 >
-                  <div>
-                    <span className="font-semibold">{food.foodName}</span>
-                    <p className="text-sm text-gray-500">
-                      ⭐ Avg Rating: {avgRatings[food._id] || "0.0"}
-                    </p>
-                    {food.comments?.length > 0 && (
-                 <div className="mt-2 bg-gray-100 p-2 rounded text-sm max-h-32 overflow-y-auto">
-                 <strong>Comments:</strong>
-                 <ul className="list-disc pl-4">
-                 {food.comments.map((c, i) => (
-                <li key={i}>{c.comment}</li>
-          ))}
-        </ul>
-      </div>
-    )}
+                  <div className="flex items-start justify-between gap-3 sm:gap-4">
+                    <div>
+                      <p className="text-sm sm:text-base font-semibold">{food.foodName}</p>
+                      <p className="text-xs sm:text-sm opacity-80">
+                        ⭐ Avg Rating: {avgRatings[food._id] || "0.0"}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3 sm:gap-4">
+                      <label className="inline-flex relative items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="sr-only peer"
+                          checked={food.active !== false}
+                          onChange={() => toggleFoodActive(food._id, food.active)}
+                        />
+                        <div className="w-10 h-6 bg-slate-300 rounded-full peer-checked:bg-amber-500 transition-colors" />
+                        <div className="absolute left-0 top-1 bg-white w-3 h-4 rounded-full transition-transform peer-checked:translate-x-[24px]" />
+                      </label>
+                      <button
+                        onClick={() => deleteFood(food._id)}
+                        title="Delete Food"
+                        className="transition-transform duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/80 rounded"
+                      >
+                        <FiTrash2 className="text-red-600 hover:text-red-800" size={20} />
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <label className="inline-flex relative items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="sr-only peer"
-                        checked={food.active !== false}
-                        onChange={() => toggleFoodActive(food._id, food.active)}
-                      />
-                      <div className="w-10 h-6 bg-gray-200 rounded-full peer-checked:bg-yellow-500 transition-colors"></div>
-                      <div className="dot absolute left-0 top-1 bg-white w-3 h-4 rounded-full transition-transform peer-checked:translate-x-[24px]" />
-                    </label>
-                    <button onClick={() => deleteFood(food._id)} title="Delete Food">
-                      <FiTrash2 className="text-red-600 hover:text-red-800" size={20} />
-                    </button>
-                  </div>
+
+                  {food.comments?.length > 0 && (
+                    <div className="mt-3 rounded-lg bg-slate-100 p-3 text-xs sm:text-sm max-h-36 overflow-y-auto">
+                      <strong>Comments:</strong>
+                      <ul className="list-disc pl-4 mt-1">
+                        {food.comments.map((c, i) => (
+                          <li key={i}>{c.comment}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
           )}
         </div>
-        </form>
       </div>
     </div>
-
-    {/* Image Section - RIGHT */}
-    <div
-      className="hidden lg:block w-1/2 h-full bg-cover bg-center"
-      style={{
-        backgroundImage: `url(${process.env.PUBLIC_URL + "/admin.jpg"})`,
-      }}
-    />
-  </div>
-);
+  );
 
   
 };
