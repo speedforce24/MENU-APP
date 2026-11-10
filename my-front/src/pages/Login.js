@@ -1,86 +1,88 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom"; // 🛠 combined import
-import api from "../axios"; // ✅ replaced axios with your api instance
+import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import api, { describeError } from "../axios";
 import { toast } from "react-toastify";
+import AuthShell from "../components/AuthShell";
+
+const Spinner = () => (
+  <svg
+    className="animate-spin h-5 w-5 text-slate-900"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+  >
+    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+  </svg>
+);
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [showForgotPassword, setShowForgotPassword] = useState(false); // ➡️ for toggling form
-  const [forgotEmail, setForgotEmail] = useState(""); // ➡️ for forgot password email input
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isSendingReset, setIsSendingReset] = useState(false);
   const navigate = useNavigate();
+
+  // Warm up the Render backend as soon as the Login page mounts so the first
+  // real login request doesn't eat a 30–60s cold start.
+  useEffect(() => {
+    api.get("/health").catch(() => {});
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (isLoggingIn) return;
+    setIsLoggingIn(true);
 
     try {
-      console.log("🔍 Sending Login Request:", { email, password });
-
-      const res = await api.post("/auth/login", { email, password }); // ✅ updated
-
+      const res = await api.post("/auth/login", { email, password });
       const token = res.data.token;
-      console.log("✅ Token received:", token);
 
-      if (token) {
-        localStorage.setItem("token", token);
-        console.log("🔍 Received Role:", res.data.role);
-        localStorage.setItem("token", res.data.token);
-        console.log("🧪 res.data.user is:", res.data.user);
-
-        localStorage.setItem("user", JSON.stringify(res.data.user));
-        res.data.role === "admin"
-          ? setTimeout(() => {
-              navigate("/admin");
-            }, 5000)
-          : setTimeout(() => {
-              navigate("/user");
-            }, 5000);
-        // after login success
-         
-
-        toast.success("Login successful");
-      } else {
-        console.error("❌ No token received");
+      if (!token) {
         toast.error("Login failed! Invalid credentials.");
+        return;
       }
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      toast.success("Login successful");
+      navigate(res.data.role === "admin" ? "/admin" : "/user");
     } catch (err) {
-      console.error("❌ Login Error:", err.response?.data || err.message);
-      toast.error(
-        "Login failed! " + (err.response?.data?.error || "Try again.")
-      );
+      toast.error(describeError(err, "Login failed. Try again."));
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
+    if (isSendingReset) return;
+    setIsSendingReset(true);
     try {
-      await api.post("/auth/forgot-password", { email: forgotEmail }); // ✅ updated
+      await api.post("/auth/forgot-password", { email: forgotEmail });
       toast.success("Reset link sent to your email!");
-      setShowForgotPassword(false); // hide form after sending
+      setShowForgotPassword(false);
       setForgotEmail("");
     } catch (err) {
-      console.error(
-        "❌ Forgot Password Error:",
-        err.response?.data || err.message
-      );
-      toast.error("Failed to send reset link. Try again.");
+      toast.error(describeError(err, "Failed to send reset link. Try again."));
+    } finally {
+      setIsSendingReset(false);
     }
   };
 
+  const eyebrow = showForgotPassword ? "Reset password" : "Welcome back";
+  const title = showForgotPassword ? "Forgot your password?" : "Login to ChopList";
+  const subtitle = showForgotPassword
+    ? "Drop your email and we'll send a reset link."
+    : "Pick up where you left off. Still hungry.";
+
   return (
-    <div
-      className="min-h-screen w-full bg-gradient-to-br from-slate-950 via-slate-900 to-amber-900 px-4 py-6 sm:py-8 flex items-center justify-center"
-      style={{ backgroundImage: `url(${process.env.PUBLIC_URL + "/platter.jpg"})` }}
-    >
-      <div className="w-full max-w-md rounded-3xl border border-white/15 bg-slate-950/70 backdrop-blur-xl shadow-2xl p-5 sm:p-6 md:p-8 transition-all duration-300 hover:shadow-amber-500/20">
-        <h2 className="text-center text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-2">
-          Welcome back
-        </h2>
-        <p className="text-center text-sm sm:text-base text-slate-200 mb-5 sm:mb-6">
-          Login to continue your food experience.
-        </p>
-        {!showForgotPassword ? (
+    <AuthShell eyebrow={eyebrow} title={title} subtitle={subtitle}>
+      {!showForgotPassword ? (
           <form onSubmit={handleLogin} className="space-y-4">
             <input
               type="email"
@@ -111,9 +113,17 @@ const Login = () => {
 
             <button
               type="submit"
-              className="w-full rounded-xl bg-amber-400 py-3.5 font-semibold text-slate-900 transition-all duration-300 hover:-translate-y-0.5 hover:bg-amber-300 hover:shadow-lg hover:shadow-amber-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+              disabled={isLoggingIn}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-400 py-3.5 font-semibold text-slate-900 transition-all duration-300 hover:-translate-y-0.5 hover:bg-amber-300 hover:shadow-lg hover:shadow-amber-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:bg-amber-400 disabled:hover:shadow-none"
             >
-              Login
+              {isLoggingIn ? (
+                <>
+                  <Spinner />
+                  <span>Signing in…</span>
+                </>
+              ) : (
+                "Login"
+              )}
             </button>
 
             {/* ➡️ Forgot Password link */}
@@ -137,9 +147,17 @@ const Login = () => {
             />
             <button
               type="submit"
-              className="w-full rounded-xl bg-amber-400 py-3.5 font-semibold text-slate-900 transition-all duration-300 hover:-translate-y-0.5 hover:bg-amber-300 hover:shadow-lg hover:shadow-amber-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+              disabled={isSendingReset}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-400 py-3.5 font-semibold text-slate-900 transition-all duration-300 hover:-translate-y-0.5 hover:bg-amber-300 hover:shadow-lg hover:shadow-amber-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:bg-amber-400 disabled:hover:shadow-none"
             >
-              Send Reset Link
+              {isSendingReset ? (
+                <>
+                  <Spinner />
+                  <span>Sending…</span>
+                </>
+              ) : (
+                "Send Reset Link"
+              )}
             </button>
             <button
               type="button"
@@ -151,14 +169,14 @@ const Login = () => {
           </form>
         )}
 
-        <Link
-          to="/register"
-          className="block text-center font-semibold mt-5 text-white transition-colors hover:text-amber-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/80 rounded"
-        >
-          Don't have an account? Register
-        </Link>
-      </div>
-    </div>
+      <Link
+        to="/register"
+        className="mt-5 block rounded text-center text-sm font-semibold text-slate-300 transition-colors hover:text-amber-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/80"
+      >
+        Don't have an account?{" "}
+        <span className="text-amber-300 underline underline-offset-4">Register</span>
+      </Link>
+    </AuthShell>
   );
 };
 

@@ -4,6 +4,7 @@ const path = require("path");
 const Food = require("../models/Food");
 const Restaurant = require("../models/Restaurant");
 const { authMiddleware, adminMiddleware } = require("../middleware/auth");
+const { foodUploadLimiter } = require("../middleware/rateLimiters");
 const Rating = require("../models/Rating");
 const router = express.Router();
 const storage = multer.diskStorage({
@@ -25,6 +26,7 @@ router.post(
   "/foods",
   authMiddleware,
   adminMiddleware,
+  foodUploadLimiter,
   upload.single("image"),
   async (req, res) => {
     try {

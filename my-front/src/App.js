@@ -1,23 +1,25 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Admin from "./pages/Admin";
 import User from "./pages/User";
 import ResetPassword from "./pages/ResetPassword";
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; // Don't forget this import
+import "react-toastify/dist/ReactToastify.css";
 import "./index.css";
 
 function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/user" element={<User />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
-        <Route path="*" element={<Register />} />
+        <Route path="*" element={<Landing />} />
       </Routes>
       <ToastContainer
         position="top-right"

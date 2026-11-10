@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import api from "../axios"
+import api, { describeError } from "../axios";
 import { FiTrash2 } from "react-icons/fi";
 import { toast } from "react-toastify";
+import AdminInvitesPanel from "../components/AdminInvitesPanel";
 
 
 const Admin = () => {
@@ -142,7 +143,7 @@ useEffect(() => {
     toast.success("Food added successfully✅ ");
   } catch (err) {
     console.error("Error in handleSubmit:", err.response?.data || err.message);
-    toast.error("Failed to upload food");
+    toast.error(describeError(err, "Failed to upload food"));
   }
 };
 
@@ -185,7 +186,8 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-slate-950 via-slate-900 to-amber-950 py-6 sm:py-8 px-4 md:px-6">
-      <div className="mx-auto max-w-7xl grid grid-cols-1 xl:grid-cols-5 gap-4 sm:gap-6">
+      <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6">
+      <div className="grid grid-cols-1 xl:grid-cols-5 gap-4 sm:gap-6">
         <div className="xl:col-span-2 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md p-4 sm:p-5 md:p-6 shadow-xl transition-all duration-300 hover:shadow-amber-500/20">
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white mb-1">Admin Panel</h2>
           <p className="text-sm text-slate-200 mb-5">Manage restaurants, food items, and availability.</p>
@@ -311,11 +313,12 @@ useEffect(() => {
             </ul>
           )}
         </div>
+        </div>
+
+        <AdminInvitesPanel />
       </div>
     </div>
   );
-
-  
 };
 
 export default Admin;

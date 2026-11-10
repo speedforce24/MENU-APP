@@ -20,6 +20,11 @@ app.use("/uploads", express.static("uploads")); // Serve uploaded images
 app.use("/api/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/comments", commentRoutes);
 
+// Lightweight health/warm-up endpoint (used by frontend to wake Render cold starts)
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ status: "ok", time: Date.now() });
+});
+
 
 
 app.use("/api/auth", authRoutes); // ✅ Moved after 'app' definition

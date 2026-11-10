@@ -1,0 +1,18 @@
+# dependencies — rebuilt by `npm install`, never committed
+node_modules/
+
+# env files — never commit secrets
+.env
+.env.local
+.env.*.local
+
+# uploads produced at runtime (Render's disk is ephemeral anyway)
+uploads/
+
+# logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db

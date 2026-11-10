@@ -1,63 +1,67 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import api from "../axios";
+import api, { describeError } from "../axios";
+import AuthShell from "../components/AuthShell";
 
+const Spinner = () => (
+  <svg
+    className="animate-spin h-5 w-5 text-slate-900"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+  >
+    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+  </svg>
+);
 
 const Register = () => {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState("user"); // Default role
+  const [showInviteField, setShowInviteField] = useState(false);
+  const [inviteCode, setInviteCode] = useState("");
+  const [isRegistering, setIsRegistering] = useState(false);
+
+  useEffect(() => {
+    api.get("/health").catch(() => {});
+  }, []);
 
   const handleRegister = async (e) => {
     e.preventDefault();
-   if (role === 'admin' && !email.endsWith('@gmail.com')) {
-  toast.error('Only @gmail.com emails are allowed for admins');
-  return;
-}
+    if (isRegistering) return;
 
-if (role === 'user' && !email.endsWith('@yopmail.com')) {
-  toast.error('Only @yopmail.com emails are allowed for students');
-  return;
-}
-
+    setIsRegistering(true);
     try {
-      const response = await api.post("/auth/register", {
-        name,
-        email,
-        password,
-        role, // Send role selection
-      });
+      const payload = { name, email, password };
+      if (showInviteField && inviteCode.trim()) {
+        payload.inviteCode = inviteCode.trim();
+      }
 
-      
-       // Show success message
-       if (response.status === 201) {
-        toast.success("Registration successful");
- setTimeout(() => {
+      const response = await api.post("/auth/register", payload);
+
+      if (response.status === 201) {
+        toast.success("Account created! Log in to continue.");
         navigate("/login");
-      }, 5000);
       }
     } catch (error) {
-      toast.error("Registration failed! " + error.response?.data?.error);
+      toast.error(describeError(error, "Registration failed. Try again."));
+    } finally {
+      setIsRegistering(false);
     }
   };
-  const navigate = useNavigate();
 
   return (
-    <div
-      className="min-h-screen w-full bg-gradient-to-br from-slate-950 via-slate-900 to-amber-900 px-4 py-6 sm:py-8 flex items-center justify-center"
-      style={{ backgroundImage: `url(${process.env.PUBLIC_URL + "/platter.jpg"})` }}
+    <AuthShell
+      eyebrow="New here?"
+      title="Create your account"
+      subtitle="Join the campus. Takes 30 seconds."
     >
-      <div className="w-full max-w-md rounded-3xl border border-white/15 bg-slate-950/70 backdrop-blur-xl shadow-2xl p-5 sm:p-6 md:p-8 transition-all duration-300 hover:shadow-amber-500/20">
-        <h2 className="text-center text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-2">
-          Create account
-        </h2>
-        <p className="text-center text-sm sm:text-base text-slate-200 mb-5 sm:mb-6">
-          Join and start exploring menus and ratings.
-        </p>
-        <form onSubmit={handleRegister} className="space-y-4">
+      <form onSubmit={handleRegister} className="space-y-4">
           <input
             type="text"
             placeholder="Name"
@@ -94,35 +98,71 @@ if (role === 'user' && !email.endsWith('@yopmail.com')) {
             </button>
           </div>
 
-          {/* Role Selection */}
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            required
-            className="w-full rounded-xl border border-white/15 bg-white/95 px-4 py-3.5 text-slate-900 transition-all duration-200 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300/60"
-          >
-            <option value="user">Student</option>
-            <option value="admin">Admin</option>
-          </select>
+          {/* Optional invite code (admins only — students never need this) */}
+          {!showInviteField ? (
+            <button
+              type="button"
+              onClick={() => setShowInviteField(true)}
+              className="w-full rounded-xl border border-dashed border-white/15 bg-transparent px-4 py-3 text-sm text-slate-300 transition-colors hover:border-amber-300/60 hover:text-amber-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
+            >
+              Got an invite code? <span className="font-semibold">Enter it</span>
+            </button>
+          ) : (
+            <div className="rounded-xl border border-amber-300/30 bg-amber-300/5 p-3">
+              <label className="mb-2 flex items-center justify-between text-xs font-semibold uppercase tracking-widest text-amber-200">
+                <span>Admin invite code</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowInviteField(false);
+                    setInviteCode("");
+                  }}
+                  className="text-[11px] font-semibold text-slate-300 underline-offset-4 hover:underline"
+                >
+                  I don't have one
+                </button>
+              </label>
+              <input
+                type="text"
+                placeholder="CHOP-XXXX-XXXX-XXXX"
+                value={inviteCode}
+                onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                autoComplete="off"
+                spellCheck={false}
+                className="w-full rounded-lg border border-white/15 bg-white/95 px-3 py-2.5 font-mono text-sm tracking-widest text-slate-900 placeholder:text-slate-400 transition-all duration-200 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300/60"
+              />
+              <p className="mt-2 text-[11px] text-slate-400">
+                Leave blank to sign up as a student.
+              </p>
+            </div>
+          )}
 
           <button
             type="submit"
-            className="w-full rounded-xl bg-amber-400 py-3.5 font-semibold text-slate-900 transition-all duration-300 hover:-translate-y-0.5 hover:bg-amber-300 hover:shadow-lg hover:shadow-amber-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+            disabled={isRegistering}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-400 py-3.5 font-semibold text-slate-900 transition-all duration-300 hover:-translate-y-0.5 hover:bg-amber-300 hover:shadow-lg hover:shadow-amber-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:bg-amber-400 disabled:hover:shadow-none"
           >
-            Register
+            {isRegistering ? (
+              <>
+                <Spinner />
+                <span>Creating account…</span>
+              </>
+            ) : (
+              "Register"
+            )}
           </button>
-        </form>
+      </form>
 
-        <div className="mt-5 text-center">
-          <Link
-            to="/login"
-            className="font-semibold text-white transition-colors hover:text-amber-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/80 rounded"
-          >
-            Have an account? Login
-          </Link>
-        </div>
+      <div className="mt-5 text-center">
+        <Link
+          to="/login"
+          className="rounded text-sm font-semibold text-slate-300 transition-colors hover:text-amber-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/80"
+        >
+          Have an account?{" "}
+          <span className="text-amber-300 underline underline-offset-4">Login</span>
+        </Link>
       </div>
-    </div>
+    </AuthShell>
   );
 };
 
