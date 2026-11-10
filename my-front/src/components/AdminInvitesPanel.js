@@ -94,7 +94,7 @@ const Modal = ({ code, expiresAt, ttlHours, onClose }) => {
         </div>
 
         <p className="mt-4 text-center text-[11px] text-rose-300/80">
-          ⚠ Once you close this, the code is gone from our screens.
+          ⚠ This code won't be shown again.
         </p>
       </div>
     </div>
@@ -152,7 +152,7 @@ const AdminInvitesPanel = () => {
             Admin invites
           </h3>
           <p className="text-xs sm:text-sm text-slate-300">
-            Generate a single-use code so another canteen owner can become an admin.
+            Generate a one-time code to onboard another admin.
           </p>
         </div>
         <button

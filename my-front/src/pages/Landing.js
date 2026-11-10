@@ -44,7 +44,7 @@ const features = [
 const testimonials = [
   { name: "Tomi, 400L", text: "Found a jollof plug I never knew existed. 10/10, my CGPA thanks you.", emoji: "🍛" },
   { name: "Aisha, 300L", text: "The anonymous comments feature is diabolical in the best way. I said what I said.", emoji: "😎" },
-  { name: "Chuks, 500L", text: "Our canteen's business doubled after we listed. Shout out to the dev.", emoji: "🔥" },
+  { name: "Chuks, 500L", text: "Our canteen's traffic doubled the week we got listed. Game changer.", emoji: "🔥" },
 ];
 
 const faqs = [
@@ -62,7 +62,7 @@ const faqs = [
   },
   {
     q: "Is my data safe?",
-    a: "Passwords are hashed with bcrypt, sessions use JWT, and every sensitive endpoint is rate-limited to block abuse.",
+    a: "Yes. Your password is encrypted, your session is signed, and we actively block spam and abuse.",
   },
 ];
 
@@ -198,8 +198,8 @@ const Landing = () => {
                 <span>🍲 real canteens</span><span>·</span>
                 <span>⭐ real ratings</span><span>·</span>
                 <span>🫢 real anonymous gist</span><span>·</span>
-                <span>⚡ built in a hostel room</span><span>·</span>
-                <span>🫶 final year energy</span><span>·</span>
+                <span>⚡ fast as the gist</span><span>·</span>
+                <span>🫶 no cap</span><span>·</span>
               </div>
             ))}
         </div>
@@ -314,8 +314,8 @@ const Landing = () => {
                 Hungry? Let's go.
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-slate-200 sm:text-lg">
-                Takes 30 seconds to sign up. Takes 10 seconds to find your next
-                meal. Takes 2 seconds to drag whoever sold you dry rice.
+                Sign up, pick a canteen, rate what you ate. Your campus menu
+                just got honest.
               </p>
               <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <Link

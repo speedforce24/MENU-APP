@@ -59,7 +59,7 @@ const Register = () => {
     <AuthShell
       eyebrow="New here?"
       title="Create your account"
-      subtitle="Join the campus. Takes 30 seconds."
+      subtitle="Join the campus."
     >
       <form onSubmit={handleRegister} className="space-y-4">
           <input
@@ -98,7 +98,6 @@ const Register = () => {
             </button>
           </div>
 
-          {/* Optional invite code (admins only — students never need this) */}
           {!showInviteField ? (
             <button
               type="button"
@@ -110,7 +109,7 @@ const Register = () => {
           ) : (
             <div className="rounded-xl border border-amber-300/30 bg-amber-300/5 p-3">
               <label className="mb-2 flex items-center justify-between text-xs font-semibold uppercase tracking-widest text-amber-200">
-                <span>Admin invite code</span>
+                <span>Invite code</span>
                 <button
                   type="button"
                   onClick={() => {
@@ -119,7 +118,7 @@ const Register = () => {
                   }}
                   className="text-[11px] font-semibold text-slate-300 underline-offset-4 hover:underline"
                 >
-                  I don't have one
+                  Skip
                 </button>
               </label>
               <input
@@ -131,9 +130,6 @@ const Register = () => {
                 spellCheck={false}
                 className="w-full rounded-lg border border-white/15 bg-white/95 px-3 py-2.5 font-mono text-sm tracking-widest text-slate-900 placeholder:text-slate-400 transition-all duration-200 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300/60"
               />
-              <p className="mt-2 text-[11px] text-slate-400">
-                Leave blank to sign up as a student.
-              </p>
             </div>
           )}
 
