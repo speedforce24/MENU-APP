@@ -29,22 +29,16 @@ const features = [
   },
   {
     emoji: "⚡",
-    title: "Fast af",
-    body: "React 19 + a lean Express API. Tap, rate, scroll. No load spinners from 2015 here (wait — we do have one, but it's cute).",
+    title: "Fast as the gist",
+    body: "Lean API, instant transitions, no bloat. Tap, rate, scroll — the app keeps up with you.",
     accent: "from-rose-500/30 to-rose-500/0",
   },
   {
-    emoji: "🫶",
-    title: "Built by a student",
-    body: "This is a final-year project with real range. Every pixel was fought for at 3am with Red Bull energy.",
+    emoji: "🔐",
+    title: "Safe by default",
+    body: "JWT auth, role-gated admin tools, rate-limited endpoints, single-use invite codes. Your food data stays yours.",
     accent: "from-indigo-500/30 to-indigo-500/0",
   },
-];
-
-const steps = [
-  { n: "01", title: "Sign up", body: "Students with @yopmail, admins with @gmail. No long thing." },
-  { n: "02", title: "Pick canteen", body: "Hit the dropdown and choose whose kitchen you're entering today." },
-  { n: "03", title: "Rate & comment", body: "Smash the stars, drop a review, help the next hungry soul." },
 ];
 
 const testimonials = [
@@ -55,20 +49,20 @@ const testimonials = [
 
 const faqs = [
   {
-    q: "Is this a real app or just a school project?",
-    a: "Both. It's a final-year full-stack build, but every feature works end-to-end — real auth, real database, real uploads.",
+    q: "Is ChopList free to use?",
+    a: "Yes. Students can browse, rate and comment for free. Canteen admins get listed by invite.",
   },
   {
-    q: "Why the yopmail / gmail rule?",
-    a: "Students sign in with a disposable campus-style email (@yopmail.com), admins with @gmail.com. It's a lightweight demo of role gating.",
+    q: "How do I become a canteen admin?",
+    a: "Admin accounts are invite-only — an existing admin sends you a single-use code. This keeps random accounts from adding fake menus.",
   },
   {
-    q: "Where's the data stored?",
-    a: "MongoDB Atlas on the backend, with JWT-protected routes. Images sit on the server's uploads folder for now.",
+    q: "Are my comments really anonymous?",
+    a: "Yes. Comments are stored without any link to your account — not even to us. Rate honestly.",
   },
   {
-    q: "Can I use this for my own campus?",
-    a: "Absolutely. The code is on GitHub — clone it, re-skin it, make it yours.",
+    q: "Is my data safe?",
+    a: "Passwords are hashed with bcrypt, sessions use JWT, and every sensitive endpoint is rate-limited to block abuse.",
   },
 ];
 
@@ -248,36 +242,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* ================= HOW IT WORKS ================= */}
-      <section className="relative px-4 py-24 sm:px-6">
-        <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-          <div className="absolute left-1/3 top-10 h-72 w-72 rounded-full bg-emerald-500/15 blur-3xl animate-blob" />
-        </div>
-        <div className="mx-auto max-w-6xl">
-          <div className="mx-auto max-w-2xl text-center">
-            <Pill>How it works</Pill>
-            <h2 className="mt-4 text-3xl font-black tracking-tight sm:text-5xl">
-              Three steps, zero stress.
-            </h2>
-          </div>
-
-          <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-3">
-            {steps.map((s) => (
-              <div
-                key={s.n}
-                className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent p-7 transition-all duration-300 hover:-translate-y-1 hover:border-amber-400/40"
-              >
-                <div className="text-5xl font-black text-amber-400/90 sm:text-6xl">
-                  {s.n}
-                </div>
-                <h3 className="mt-4 text-xl font-bold">{s.title}</h3>
-                <p className="mt-2 text-slate-300">{s.body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ================= TESTIMONIALS ================= */}
       <section className="relative px-4 py-24 sm:px-6">
         <div className="mx-auto max-w-6xl">
@@ -386,7 +350,7 @@ const Landing = () => {
             <span className="opacity-60">© {new Date().getFullYear()}</span>
           </div>
           <p className="text-center opacity-80">
-            Built with React, Express & jollof rice. Final year project energy.
+            Made for campus. Served hot.
           </p>
         </div>
       </footer>
