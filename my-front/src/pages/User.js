@@ -4,6 +4,7 @@ import Rating from "react-rating";
 import "@fortawesome/fontawesome-free/css/all.css";
 import { toast } from "react-toastify";
 import LogoutButton from "../components/LogoutButton";
+import DeleteAccountButton from "../components/DeleteAccountButton";
 import useSessionGuard from "../hooks/useSessionGuard";
 
 const UserDashboard = () => {
@@ -94,7 +95,10 @@ const UserDashboard = () => {
               Chop<span className="text-amber-400">List</span>
             </span>
           </div>
-          <LogoutButton />
+          <div className="flex items-center gap-2">
+            <DeleteAccountButton />
+            <LogoutButton />
+          </div>
         </header>
 
         {/* Restaurant Selector */}

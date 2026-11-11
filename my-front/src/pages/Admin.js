@@ -3,7 +3,9 @@ import api, { describeError } from "../axios";
 import { FiTrash2 } from "react-icons/fi";
 import { toast } from "react-toastify";
 import AdminInvitesPanel from "../components/AdminInvitesPanel";
+import MaintenancePanel from "../components/MaintenancePanel";
 import LogoutButton from "../components/LogoutButton";
+import DeleteAccountButton from "../components/DeleteAccountButton";
 import useSessionGuard from "../hooks/useSessionGuard";
 
 
@@ -200,7 +202,10 @@ useEffect(() => {
               </span>
             </span>
           </div>
-          <LogoutButton />
+          <div className="flex items-center gap-2">
+            <DeleteAccountButton isAdmin />
+            <LogoutButton />
+          </div>
         </header>
       <div className="grid grid-cols-1 xl:grid-cols-5 gap-4 sm:gap-6">
         <div className="xl:col-span-2 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md p-4 sm:p-5 md:p-6 shadow-xl transition-all duration-300 hover:shadow-amber-500/20">
@@ -331,6 +336,7 @@ useEffect(() => {
         </div>
 
         <AdminInvitesPanel />
+        <MaintenancePanel />
       </div>
     </div>
   );

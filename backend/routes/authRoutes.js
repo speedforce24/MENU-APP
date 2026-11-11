@@ -11,6 +11,7 @@ const {
   loginLimiter,
   forgotPasswordLimiter,
 } = require("../middleware/rateLimiters");
+const { cascadeDeleteUser, cleanupOrphans } = require("../utils/cascadeDelete");
 const axios = require("axios");
 
 const router = express.Router();
@@ -314,6 +315,39 @@ router.post("/reset-password", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to reset password" });
+  }
+});
+
+/**
+ * Self-delete your own account. Cascades to restaurants/foods/ratings/
+ * comments owned by this user. Admins and students both call this endpoint
+ * — there is intentionally no cross-user delete to prevent
+ * admin-delete-admin footguns.
+ */
+router.delete("/me", authMiddleware, async (req, res) => {
+  try {
+    const counts = await cascadeDeleteUser(req.user.id);
+    res.json({ message: "Account deleted", counts });
+  } catch (err) {
+    console.error("Self-delete error:", err);
+    res
+      .status(err.status || 500)
+      .json({ error: err.message || "Failed to delete account" });
+  }
+});
+
+/**
+ * Admin-only one-time cleanup for restaurants whose owner no longer exists
+ * (e.g. an owner was deleted directly in Mongo before cascading was in
+ * place). Also drops their orphaned foods, ratings and comments.
+ */
+router.post("/orphans/cleanup", authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const counts = await cleanupOrphans();
+    res.json({ message: "Cleanup complete", counts });
+  } catch (err) {
+    console.error("Orphan cleanup error:", err);
+    res.status(500).json({ error: "Cleanup failed" });
   }
 });
 
