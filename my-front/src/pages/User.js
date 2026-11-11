@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from "react";
-import api from "../axios"; // ✅ replaced axios with api instance
+import api from "../axios";
 import Rating from "react-rating";
 import "@fortawesome/fontawesome-free/css/all.css";
 import { toast } from "react-toastify";
+import LogoutButton from "../components/LogoutButton";
+import useSessionGuard from "../hooks/useSessionGuard";
 
 const UserDashboard = () => {
+  useSessionGuard();
   const [restaurants, setRestaurants] = useState([]);
   const [selectedRestaurant, setSelectedRestaurant] = useState("");
   const [foods, setFoods] = useState([]);
@@ -84,6 +87,16 @@ const UserDashboard = () => {
       }}
     >
       <div className="mx-auto w-full max-w-6xl">
+        <header className="mb-4 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-md sm:mb-5">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">🍲</span>
+            <span className="text-base font-black tracking-tight text-white sm:text-lg">
+              Chop<span className="text-amber-400">List</span>
+            </span>
+          </div>
+          <LogoutButton />
+        </header>
+
         {/* Restaurant Selector */}
         <div className="mb-5 sm:mb-6 rounded-3xl border border-white/10 bg-white/10 backdrop-blur-md p-4 md:p-5 shadow-xl transition-all duration-300 hover:shadow-emerald-500/20">
           <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">

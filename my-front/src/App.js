@@ -5,6 +5,7 @@ import Register from "./pages/Register";
 import Admin from "./pages/Admin";
 import User from "./pages/User";
 import ResetPassword from "./pages/ResetPassword";
+import ProtectedRoute from "./components/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./index.css";
@@ -16,8 +17,22 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/user" element={<User />} />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute role="admin">
+              <Admin />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user"
+          element={
+            <ProtectedRoute role="user">
+              <User />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="*" element={<Landing />} />
       </Routes>

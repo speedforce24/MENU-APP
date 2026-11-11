@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import api, { describeError } from "../axios";
 import AuthShell from "../components/AuthShell";
+import { isAuthenticated, getRole } from "../utils/auth";
 
 const Spinner = () => (
   <svg
@@ -26,6 +27,12 @@ const Register = () => {
   const [showInviteField, setShowInviteField] = useState(false);
   const [inviteCode, setInviteCode] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated()) {
+      navigate(getRole() === "admin" ? "/admin" : "/user", { replace: true });
+    }
+  }, [navigate]);
 
   useEffect(() => {
     api.get("/health").catch(() => {});

@@ -3,9 +3,12 @@ import api, { describeError } from "../axios";
 import { FiTrash2 } from "react-icons/fi";
 import { toast } from "react-toastify";
 import AdminInvitesPanel from "../components/AdminInvitesPanel";
+import LogoutButton from "../components/LogoutButton";
+import useSessionGuard from "../hooks/useSessionGuard";
 
 
 const Admin = () => {
+  useSessionGuard();
   const [restaurants, setRestaurants] = useState([]);
   const [selectedRestaurant, setSelectedRestaurant] = useState("");
   const [foodName, setFoodName] = useState("");
@@ -187,6 +190,18 @@ useEffect(() => {
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-slate-950 via-slate-900 to-amber-950 py-6 sm:py-8 px-4 md:px-6">
       <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6">
+        <header className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-md">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">🍲</span>
+            <span className="text-base font-black tracking-tight text-white sm:text-lg">
+              Chop<span className="text-amber-400">List</span>
+              <span className="ml-2 rounded-full border border-amber-400/40 bg-amber-400/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-amber-200">
+                Admin
+              </span>
+            </span>
+          </div>
+          <LogoutButton />
+        </header>
       <div className="grid grid-cols-1 xl:grid-cols-5 gap-4 sm:gap-6">
         <div className="xl:col-span-2 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md p-4 sm:p-5 md:p-6 shadow-xl transition-all duration-300 hover:shadow-amber-500/20">
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white mb-1">Admin Panel</h2>

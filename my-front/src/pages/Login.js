@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import api, { describeError } from "../axios";
 import { toast } from "react-toastify";
 import AuthShell from "../components/AuthShell";
+import { isAuthenticated, getRole } from "../utils/auth";
 
 const Spinner = () => (
   <svg
@@ -26,9 +27,24 @@ const Login = () => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isSendingReset, setIsSendingReset] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Warm up the Render backend as soon as the Login page mounts so the first
-  // real login request doesn't eat a 30–60s cold start.
+  // If a valid session exists, don't show the login form — go straight to
+  // the correct dashboard. Also pop the "session expired" toast when the
+  // interceptor redirected us here.
+  useEffect(() => {
+    if (isAuthenticated()) {
+      navigate(getRole() === "admin" ? "/admin" : "/user", { replace: true });
+      return;
+    }
+    const params = new URLSearchParams(location.search);
+    if (params.get("reason") === "expired") {
+      toast.info("Your session expired. Sign in again.");
+    }
+  }, [navigate, location.search]);
+
+  // Warm up the Render backend so the first login request doesn't eat
+  // a 30–60s cold start.
   useEffect(() => {
     api.get("/health").catch(() => {});
   }, []);
