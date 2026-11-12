@@ -58,15 +58,39 @@ api.interceptors.response.use(
 
 /**
  * Pull a user-friendly message out of an axios error.
- * - 429 (rate limit): always surfaced — the user NEEDS to see why we refused.
- * - Other errors: use the server-provided `error` field, else the fallback.
+ * Order of preference:
+ * 1. Server-provided `error` field (specific, written for this exact call).
+ * 2. Friendly per-status fallback (matches the HTTP meaning).
+ * 3. The caller's generic fallback.
+ * 4. A last-resort "something went wrong".
+ * Raw axios messages like "Request failed with status code 500" never
+ * reach the user.
  */
 export const describeError = (err, fallback = "Something went wrong. Try again.") => {
   const serverMsg = err?.response?.data?.error;
-  if (err?.response?.status === 429) {
-    return serverMsg || "Too many requests. Slow down a moment and try again.";
+  if (serverMsg) return serverMsg;
+
+  // No response at all = the request didn't reach the server.
+  if (!err?.response) {
+    return "Can't reach the server right now. Check your connection and try again.";
   }
-  return serverMsg || fallback;
+
+  const status = err.response.status;
+  const statusMessages = {
+    400: "That didn't look right. Double-check and try again.",
+    401: "Your session expired. Please log in again.",
+    403: "You don't have permission to do that.",
+    404: "We couldn't find what you were looking for.",
+    409: "That conflicts with something already saved.",
+    413: "That file is too large.",
+    415: "That file type isn't supported.",
+    429: "Too many requests. Slow down a moment and try again.",
+    500: "Server hiccup on our end. Try again in a moment.",
+    502: "Server is restarting. Give it a few seconds and retry.",
+    503: "Server is temporarily unavailable. Try again shortly.",
+    504: "Server took too long to respond. Try again.",
+  };
+  return statusMessages[status] || fallback;
 };
 
 export default api;
