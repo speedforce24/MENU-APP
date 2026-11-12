@@ -18,13 +18,30 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
+/**
+ * Wrap multer's middleware so any upload error (Cloudinary rejection,
+ * oversize file, bad mimetype) is logged and returned as JSON instead
+ * of being swallowed by Express's default 500 handler.
+ */
+const uploadImage = (req, res, next) => {
+  upload.single("image")(req, res, (err) => {
+    if (err) {
+      console.error("❌ Image upload middleware error:", err);
+      return res.status(400).json({
+        error: err.message || "Image upload failed",
+      });
+    }
+    next();
+  });
+};
+
 // Add Food Item (Only Admins) - Ensures restaurant exists
 router.post(
   "/foods",
   authMiddleware,
   adminMiddleware,
   foodUploadLimiter,
-  upload.single("image"),
+  uploadImage,
   async (req, res) => {
     try {
       let { foodName, price, restaurantName } = req.body;
@@ -74,7 +91,7 @@ router.patch(
   authMiddleware,
   adminMiddleware,
   foodUploadLimiter,
-  upload.single("image"),
+  uploadImage,
   async (req, res) => {
     try {
       const food = await Food.findById(req.params.foodId);
