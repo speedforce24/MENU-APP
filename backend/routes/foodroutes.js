@@ -1,25 +1,22 @@
 const express = require("express");
 const multer = require("multer");
-const path = require("path");
 const Food = require("../models/Food");
 const Restaurant = require("../models/Restaurant");
 const { authMiddleware, adminMiddleware } = require("../middleware/auth");
 const { foodUploadLimiter } = require("../middleware/rateLimiters");
-const Rating = require("../models/Rating");
-const router = express.Router();
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname || "");
-    cb(null, `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`);
-  },
-});
-const upload = multer({ storage });
+const {
+  cloudinary,
+  foodImageStorage,
+  publicIdFromUrl,
+} = require("../config/cloudinary");
 
-// Serve uploaded images
-router.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+const router = express.Router();
+
+// 5 MB cap. Keeps Cloudinary quota predictable and blocks huge accidental uploads.
+const upload = multer({
+  storage: foodImageStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
 
 // Add Food Item (Only Admins) - Ensures restaurant exists
 router.post(
@@ -30,44 +27,76 @@ router.post(
   upload.single("image"),
   async (req, res) => {
     try {
-      console.log("📥 Received food data:", req.body);
-      console.log("🖼 File uploaded:", req.file);
-
       let { foodName, price, restaurantName } = req.body;
 
-      // Validate required fields
       if (!foodName || !price || !restaurantName) {
         return res.status(400).json({ error: "All fields are required" });
       }
-
-      // Ensure an image was uploaded
       if (!req.file) {
         return res.status(400).json({ error: "Image upload failed" });
       }
 
-      // Check if restaurant exists, else create it
+      // req.file.path is the Cloudinary CDN URL (https://res.cloudinary.com/...)
+      const imageUrl = req.file.path;
+
       let restaurant = await Restaurant.findOne({ restaurantName });
       if (!restaurant) {
-        restaurant = new Restaurant({ restaurantName });
+        restaurant = new Restaurant({
+          restaurantName,
+          createdBy: req.user.id,
+        });
         await restaurant.save();
-        console.log("✅ New restaurant created:", restaurant);
       }
-      restaurantName = restaurantName.toString();
 
-      // Save the food item
-      const newFood = new Food({
+      const newFood = await Food.create({
         foodName,
         price,
-        image: `/uploads/${req.file.filename}`,
-        restaurantName,
-        active: true, // default active when created
+        image: imageUrl,
+        restaurantName: restaurantName.toString(),
+        active: true,
       });
 
-      await newFood.save();
       res.status(201).json({ message: "Food added successfully", food: newFood });
     } catch (err) {
       console.error("❌ Error adding food:", err);
       res.status(500).json({ error: "Failed to upload food", details: err.message });
+    }
+  }
+);
+
+/**
+ * Replace a food's image. Used to "re-hydrate" foods whose old local-disk
+ * images were lost when Render wiped the filesystem on redeploy. Also just
+ * nice to have for everyday image swaps.
+ */
+router.patch(
+  "/foods/:foodId/image",
+  authMiddleware,
+  adminMiddleware,
+  foodUploadLimiter,
+  upload.single("image"),
+  async (req, res) => {
+    try {
+      const food = await Food.findById(req.params.foodId);
+      if (!food) return res.status(404).json({ error: "Food not found" });
+      if (!req.file) return res.status(400).json({ error: "No image uploaded" });
+
+      const oldPublicId = publicIdFromUrl(food.image);
+      food.image = req.file.path;
+      await food.save();
+
+      // Best-effort cleanup of the superseded Cloudinary asset. Don't fail
+      // the request if the delete call errors — the new image is saved.
+      if (oldPublicId) {
+        cloudinary.uploader.destroy(oldPublicId).catch((e) => {
+          console.warn("Cloudinary destroy failed for", oldPublicId, e.message);
+        });
+      }
+
+      res.json({ message: "Image updated", food });
+    } catch (err) {
+      console.error("❌ Error replacing image:", err);
+      res.status(500).json({ error: "Failed to replace image" });
     }
   }
 );
@@ -126,10 +155,18 @@ router.get("/foods/:restaurantName", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Failed to fetch food items" });
   }
 });
-// DELETE /api/foods/:id
-router.delete("/foods/:id",authMiddleware,adminMiddleware, async (req, res) => {
+// DELETE /api/foods/:id — also best-effort cleans up the Cloudinary asset.
+router.delete("/foods/:id", authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    await Food.findByIdAndDelete(req.params.id);
+    const food = await Food.findByIdAndDelete(req.params.id);
+    if (food) {
+      const publicId = publicIdFromUrl(food.image);
+      if (publicId) {
+        cloudinary.uploader.destroy(publicId).catch((e) => {
+          console.warn("Cloudinary destroy failed for", publicId, e.message);
+        });
+      }
+    }
     res.json({ message: "Food deleted successfully" });
   } catch (err) {
     res.status(500).json({ error: "Server error" });

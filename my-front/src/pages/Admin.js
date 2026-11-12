@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import api, { describeError } from "../axios";
-import { FiTrash2 } from "react-icons/fi";
+import { FiTrash2, FiRefreshCw } from "react-icons/fi";
 import { toast } from "react-toastify";
 import AdminInvitesPanel from "../components/AdminInvitesPanel";
 import MaintenancePanel from "../components/MaintenancePanel";
@@ -20,6 +20,16 @@ const Admin = () => {
   const [avgRatings, setAvgRatings] = useState({});
   const [fileName, setFileName] = useState("");
   const [user, setUser] = useState(null);
+  const [replacingFoodId, setReplacingFoodId] = useState(null);
+  const replaceInputRef = useRef(null);
+  const imageBasePath = api.defaults.baseURL || "/api";
+
+  const getImageSrc = (imagePath) => {
+    if (!imagePath) return "";
+    if (/^https?:\/\//i.test(imagePath)) return imagePath;
+    const normalizedPath = imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
+    return `${imageBasePath}${normalizedPath}`;
+  };
 
 
 useEffect(() => {
@@ -169,6 +179,40 @@ useEffect(() => {
     }
   };
 
+  const openReplaceImagePicker = (foodId) => {
+    setReplacingFoodId(foodId);
+    if (replaceInputRef.current) {
+      replaceInputRef.current.value = "";
+      replaceInputRef.current.click();
+    }
+  };
+
+  const handleReplaceImageChange = async (e) => {
+    const file = e.target.files?.[0];
+    const foodId = replacingFoodId;
+    setReplacingFoodId(null);
+    if (!file || !foodId) return;
+
+    const token = localStorage.getItem("token");
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const res = await api.patch(`/foods/${foodId}/image`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      setFoods((prev) =>
+        prev.map((f) => (f._id === foodId ? { ...f, image: res.data.food.image } : f))
+      );
+      toast.success("Image updated ✅");
+    } catch (err) {
+      toast.error(describeError(err, "Failed to replace image"));
+    }
+  };
+
  const deleteFood = async (foodId) => {
   const confirmDelete = window.confirm("Are you sure you want to delete this food?");
   if (!confirmDelete) return;
@@ -191,6 +235,13 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-slate-950 via-slate-900 to-amber-950 py-6 sm:py-8 px-4 md:px-6">
+      <input
+        type="file"
+        ref={replaceInputRef}
+        onChange={handleReplaceImageChange}
+        accept="image/*"
+        className="hidden"
+      />
       <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6">
         <header className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-md">
           <div className="flex items-center gap-2">
@@ -291,27 +342,46 @@ useEffect(() => {
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3 sm:gap-4">
-                    <div>
-                      <p className="text-sm sm:text-base font-semibold">{food.foodName}</p>
-                      <p className="text-xs sm:text-sm opacity-80">
-                        ⭐ Avg Rating: {avgRatings[food._id] || "0.0"}
-                      </p>
+                    <div className="flex min-w-0 items-center gap-3">
+                      <img
+                        src={getImageSrc(food.image)}
+                        alt={food.foodName}
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                        className="h-12 w-12 flex-shrink-0 rounded-lg object-cover ring-1 ring-slate-200"
+                      />
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold sm:text-base">
+                          {food.foodName}
+                        </p>
+                        <p className="text-xs opacity-80 sm:text-sm">
+                          ⭐ Avg Rating: {avgRatings[food._id] || "0.0"}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3 sm:gap-4">
-                      <label className="inline-flex relative items-center cursor-pointer">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <button
+                        onClick={() => openReplaceImagePicker(food._id)}
+                        title="Replace image"
+                        className="rounded p-1 text-slate-500 transition-all duration-200 hover:scale-110 hover:text-amber-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/80"
+                      >
+                        <FiRefreshCw size={18} />
+                      </button>
+                      <label className="relative inline-flex cursor-pointer items-center">
                         <input
                           type="checkbox"
-                          className="sr-only peer"
+                          className="peer sr-only"
                           checked={food.active !== false}
                           onChange={() => toggleFoodActive(food._id, food.active)}
                         />
-                        <div className="w-10 h-6 bg-slate-300 rounded-full peer-checked:bg-amber-500 transition-colors" />
-                        <div className="absolute left-0 top-1 bg-white w-3 h-4 rounded-full transition-transform peer-checked:translate-x-[24px]" />
+                        <div className="h-6 w-10 rounded-full bg-slate-300 transition-colors peer-checked:bg-amber-500" />
+                        <div className="absolute left-0 top-1 h-4 w-3 rounded-full bg-white transition-transform peer-checked:translate-x-[24px]" />
                       </label>
                       <button
                         onClick={() => deleteFood(food._id)}
                         title="Delete Food"
-                        className="transition-transform duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/80 rounded"
+                        className="rounded transition-transform duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/80"
                       >
                         <FiTrash2 className="text-red-600 hover:text-red-800" size={20} />
                       </button>
